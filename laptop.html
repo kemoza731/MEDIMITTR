@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDI MITTRA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #005566; --secondary-color: #6c757d; --success-color: #28a745; --danger-color: #dc3545;
+            --bg-color: #f8f9fa; --text-color: #212529; --high-contrast-bg: #000; --high-contrast-text: #fff;
+            --dashboard-color: #007f8c; --medication-color: #6f42c1; --doctors-color: #17a2b8;
+            --history-color: #fd7e14; --games-color: #e83e8c; --profile-color: #20c997;
+            --settings-color: #6c757d; --prescription-color: #007bff;
+        }
+        body {
+            font-family: 'Roboto', sans-serif; font-size: 20px; line-height: 1.6; background: var(--bg-color);
+            color: var(--text-color); min-height: 100vh; padding-bottom: 140px; animation: bodyFadeIn 0.5s forwards;
+        }
+        @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #004d4d);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; animation: introFade 1.5s forwards; pointer-events: none;
+        }
+        @keyframes introFade { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        .intro-logo { font-size: 3rem; color: #fff; display: flex; align-items: center; }
+        .intro-logo i { margin-right: 15px; }
+        .intro-text { color: #fff; font-size: 1.5rem; margin-top: 10px; animation: textFade 1s 0.3s forwards; opacity: 0; }
+        @keyframes textFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .navbar { background: #fff; border-bottom: 3px solid var(--primary-color); padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .navbar-brand { font-size: 26px; font-weight: 700; color: var(--primary-color); display: flex; align-items: center; }
+        .call-button, .voice-button { background: var(--danger-color); color: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 22px; cursor: pointer; transition: background 0.3s; }
+        .call-button:hover { background: #c82333; }
+        .voice-button { background: var(--primary-color); }
+        .voice-button:hover { background: #004d4d; }
+        .sidebar { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: #fff; box-shadow: -2px 0 8px rgba(0,0,0,0.2); z-index: 1001; transition: right 0.3s; padding: 20px; }
+        .sidebar.active { right: 0; }
+        .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
+        .sidebar-backdrop.active { display: block; pointer-events: auto; }
+        .sidebar-header { font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 20px; }
+        .sidebar .nav-link { font-size: 20px; color: var(--text-color); padding: 15px; display: flex; align-items: center; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background 0.2s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #e6f0ff; color: var(--primary-color); }
+        .sidebar .nav-link i { margin-right: 10px; width: 24px; text-align: center; }
+        .sidebar-toggle { background: none; border: none; font-size: 24px; color: var(--primary-color); cursor: pointer; }
+        .content-section { display: none; padding: 20px; background: rgba(255,255,255,0.9); }
+        .content-section.active { display: block; }
+        #dashboard { border-left: 5px solid var(--dashboard-color); }
+        #medication { border-left: 5px solid var(--medication-color); }
+        #doctors { border-left: 5px solid var(--doctors-color); }
+        #medication-history { border-left: 5px solid var(--history-color); }
+        #games { border-left: 5px solid var(--games-color); }
+        #profile, #caretaker { border-left: 5px solid var(--profile-color); }
+        #settings { border-left: 5px solid var(--settings-color); }
+        #prescription { border-left: 5px solid var(--prescription-color); }
+        .btn-large { font-size: 20px; padding: 15px 30px; border-radius: 10px; min-height: 60px; transition: transform 0.2s; }
+        .btn-large:hover { transform: scale(1.05); }
+        .card { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 12px; margin-bottom: 20px; }
+        .card-header { font-size: 24px; font-weight: 500; border-radius: 12px 12px 0 0; }
+        .list-group-item { font-size: 20px; padding: 15px; border: 1px solid #dee2e6; }
+        .form-control, .form-select { font-size: 20px; padding: 12px; border-radius: 8px; }
+        .alert { font-size: 20px; border-radius: 10px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .high-contrast { background: var(--high-contrast-bg) !important; color: var(--high-contrast-text) !important; }
+        .high-contrast .card, .high-contrast .navbar, .high-contrast .sidebar { background: var(--high-contrast-bg) !important; color: var(--high-contrast-text) !important; }
+        .high-contrast .nav-link, .high-contrast .btn { color: var(--high-contrast-text) !important; }
+        .high-contrast .form-control { background: var(--high-contrast-bg) !important; color: var(--high-contrast-text) !important; border: 1px solid var(--high-contrast-text); }
+        .voice-hint { font-style: italic; color: var(--secondary-color); text-align: center; margin: 15px 0; font-size: 18px; }
+        .modal-content { border-radius: 12px; }
+        audio { display: none; }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #fff;
+            border-top: 3px solid var(--primary-color); box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            z-index: 1001; display: flex; justify-content: space-around; padding: 15px 0;
+            flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .bottom-nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-color); font-size: 18px; cursor: pointer;
+            min-width: 80px; flex-shrink: 1; padding: 12px 8px; transition: color 0.3s, background 0.3s;
+            pointer-events: auto; white-space: nowrap;
+        }
+        .bottom-nav-item.active {
+            color: var(--primary-color); font-weight: 700; background: #e6f0ff; border-radius: 8px;
+        }
+        .bottom-nav-item i {
+            font-size: 24px; margin-bottom: 5px;
+        }
+        @media (max-width: 768px) {
+            body { padding-bottom: 140px; }
+            .sidebar { width: 80%; }
+            .bottom-nav { flex-wrap: nowrap; overflow-x: auto; }
+            .bottom-nav-item { font-size: 14px; padding: 10px 6px; min-width: 60px; flex-shrink: 1; }
+            .bottom-nav-item i { font-size: 20px; }
+            .bottom-nav-item span { font-size: 12px; }
+        }
+        @media (max-width: 480px) {
+            .bottom-nav-item { min-width: 50px; padding: 8px 4px; }
+            .bottom-nav-item span { display: none; }
+        }
+        #prescriptionPreview { max-width: 100%; max-height: 300px; margin: 10px 0; border-radius: 8px; }
+        .game-card { width: 60px; height: 60px; margin: 5px; cursor: pointer; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: #f8f9fa; transition: transform 0.3s; }
+        .game-card.flipped { background: var(--primary-color); color: #fff; transform: rotateY(180deg); }
+        .game-card.matched { background: var(--success-color); color: #fff; }
+        .trivia-question { font-size: 22px; margin-bottom: 20px; text-align: center; }
+        .trivia-option { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
+        .trivia-option:hover { background: #e6f0ff; }
+        .trivia-option.correct { background: var(--success-color); color: #fff; }
+        .trivia-option.incorrect { background: var(--danger-color); color: #fff; }
+        .profile-summary { background: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .profile-summary ul { list-style: none; padding: 0; }
+        .profile-summary li { margin-bottom: 10px; font-size: 18px; }
+        #wordGame { display: none; text-align: center; }
+        .letter-btn { margin: 2px; padding: 10px; font-size: 18px; }
+        #gallows { font-size: 24px; margin: 20px 0; min-height: 150px; }
+        #wordDisplay { font-size: 32px; letter-spacing: 10px; margin: 20px 0; }
+        .wrong-guess { color: var(--danger-color); }
+    </style>
+</head>
+<body>
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-logo"><i class="fas fa-heartbeat"></i><span>MEDI MITTRA</span></div>
+        <div class="intro-text" data-en="Your Trusted Health Companion" data-hi="आपका विश्वसनीय स्वास्थ्य साथी">Your Trusted Health Companion</div>
+    </div>
+    <div class="modal fade" id="micModal" tabindex="-1" aria-labelledby="micModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card-header" style="background: var(--primary-color); color: #fff;" data-en="Microphone Permission" data-hi="माइक्रोफोन अनुमति">Microphone Permission</div>
+                <div class="modal-body">
+                    <p data-en="MEDI MITTRA requires microphone access for voice commands." data-hi="मेडी मित्र को आवाज कमांड के लिए माइक्रोफोन की पहुँच की आवश्यकता है।">MEDI MITTRA requires microphone access for voice commands.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" data-en="Deny" data-hi="अस्वीकार करें">Deny</button>
+                    <button class="btn btn-primary" data-action="requestMicPermission" data-en="Allow" data-hi="अनुमति दें">Allow</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editMedModal" tabindex="-1" aria-labelledby="editMedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card-header" style="background: var(--medication-color); color: #fff;" data-en="Edit Medication" data-hi="दवा संपादित करें">Edit Medication</div>
+                <div class="modal-body">
+                    <form id="editMedForm">
+                        <input type="hidden" id="editMedId">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Medication Name" data-hi="दवा का नाम">Medication Name</label>
+                            <input type="text" class="form-control" id="editMedName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Dosage & Time" data-hi="खुराक और समय">Dosage & Time</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="editMedDoseText" required>
+                                <input type="time" class="form-control" id="editMedTime" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Description" data-hi="विवरण">Description</label>
+                            <textarea class="form-control" id="editMedDesc" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button class="btn btn-primary" data-action="saveEditMed" data-en="Save" data-hi="सहेजें">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editDoctorModal" tabindex="-1" aria-labelledby="editDoctorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card-header" style="background: var(--doctors-color); color: #fff;" data-en="Edit Doctor" data-hi="डॉक्टर संपादित करें">Edit Doctor</div>
+                <div class="modal-body">
+                    <form id="editDoctorForm">
+                        <input type="hidden" id="editDoctorId">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Doctor Name" data-hi="डॉक्टर का नाम">Doctor Name</label>
+                            <input type="text" class="form-control" id="editDoctorName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Specialty" data-hi="विशेषज्ञता">Specialty</label>
+                            <input type="text" class="form-control" id="editSpecialty" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Contact" data-hi="संपर्क">Contact</label>
+                            <input type="tel" class="form-control" id="editDoctorContact" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button class="btn btn-primary" data-action="saveEditDoctor" data-en="Save" data-hi="सहेजें">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editCaregiverModal" tabindex="-1" aria-labelledby="editCaregiverModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card-header" style="background: var(--profile-color); color: #fff;" data-en="Edit Caregiver" data-hi="देखभालकर्ता संपादित करें">Edit Caregiver</div>
+                <div class="modal-body">
+                    <form id="editCaregiverForm">
+                        <input type="hidden" id="editCaregiverId">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Caregiver Name" data-hi="देखभालकर्ता का नाम">Caregiver Name</label>
+                            <input type="text" class="form-control" id="editCaregiverName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Contact (Phone)" data-hi="संपर्क (फ़ोन)">Contact (Phone)</label>
+                            <input type="tel" class="form-control" id="editCaregiverContact" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Email" data-hi="ईमेल">Email</label>
+                            <input type="email" class="form-control" id="editCaregiverEmail">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button class="btn btn-primary" data-action="saveEditCaregiver" data-en="Save" data-hi="सहेजें">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- New Modal for Sending Messages -->
+    <div class="modal fade" id="sendMessageModal" tabindex="-1" aria-labelledby="sendMessageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendModalTitle" data-en="Send Message" data-hi="संदेश भेजें">Send Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="messageText" rows="4" data-en-placeholder="Enter your message..." data-hi-placeholder="अपना संदेश दर्ज करें..." placeholder="Enter your message..."></textarea>
+                    <div class="mt-3">
+                        <label class="form-label fs-5" data-en="Method" data-hi="विधि">Method</label>
+                        <select class="form-select" id="sendMethod">
+                            <option value="sms" data-en="SMS" data-hi="एसएमएस">SMS</option>
+                            <option value="email" data-en="Email" data-hi="ईमेल">Email</option>
+                        </select>
+                    </div>
+                    <p id="contactInfo" class="text-muted mt-2" data-en="Contact will be shown here." data-hi="संपर्क यहाँ दिखाया जाएगा।">Contact will be shown here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="sendMessageBtn" data-en="Send" data-hi="भेजें">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header"><i class="fas fa-heartbeat"></i><span data-en="Menu" data-hi="मेनू">Menu</span></div>
+        <a class="nav-link" data-action="showSection" data-section="profile" style="color: var(--profile-color);"><i class="fas fa-user"></i><span data-en="Profile" data-hi="प्रोफाइल">Profile</span></a>
+        <a class="nav-link" data-action="showSection" data-section="caretaker" style="color: var(--profile-color);"><i class="fas fa-user-friends"></i><span data-en="Caretaker" data-hi="देखभालकर्ता">Caretaker</span></a>
+        <a class="nav-link" data-action="showSection" data-section="settings" style="color: var(--settings-color);"><i class="fas fa-cog"></i><span data-en="Settings" data-hi="सेटिंग्स">Settings</span></a>
+        <a class="nav-link" data-action="showSection" data-section="prescription" style="color: var(--prescription-color);"><i class="fas fa-file-upload"></i><span data-en="Upload Prescription" data-hi="प्रिस्क्रिप्शन अपलोड करें">Upload Prescription</span></a>
+        <a class="nav-link" data-action="showSection" data-section="medication-history" style="color: var(--history-color);"><i class="fas fa-history"></i><span data-en="Medication History" data-hi="दवा इतिहास">Medication History</span></a>
+    </div>
+    <nav class="navbar navbar-light">
+        <div class="container-fluid">
+            <button class="sidebar-toggle" data-action="toggleSidebar" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+            <a class="navbar-brand"><i class="fas fa-heartbeat"></i><span data-en="MEDI MITTRA" data-hi="मेडी मित्र">MEDI MITTRA</span></a>
+            <div>
+                <a href="tel:112" class="call-button" aria-label="Make emergency call"><i class="fas fa-phone"></i></a>
+                <button class="voice-button ms-2" data-action="toggleVoiceRecognition" aria-label="Toggle voice recognition"><i class="fas fa-microphone"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid mt-3">
+        <section id="dashboard" class="content-section active">
+            <div class="row dashboard-grid">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header" style="background: var(--dashboard-color); color: #fff;" data-en="Quick Overview" data-hi="त्वरित अवलोकन">Quick Overview</div>
+                        <div class="card-body">
+                            <p class="fs-5" data-en="Today's summary:" data-hi="आज का सारांश:">Today's summary:</p>
+                            <ul id="todayMeds" class="list-unstyled">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                            <button class="btn btn-large w-100" style="background: var(--dashboard-color); color: #fff;" data-action="showSection" data-section="medication" data-en="View Medications" data-hi="दवाएँ देखें">View Medications</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header" style="background: var(--dashboard-color); color: #fff;" data-en="Wellness Activities" data-hi="स्वास्थ्य गतिविधियाँ">Wellness Activities</div>
+                        <div class="card-body">
+                            <p class="fs-5" data-en="Maintain your health." data-hi="अपना स्वास्थ्य बनाए रखें।">Maintain your health.</p>
+                            <p class="voice-hint" data-en="Voice command: Start meditation or Take me to games." data-hi="आवाज कमांड: ध्यान शुरू करें या मुझे खेल पर ले जाएं।">Voice command: Start meditation or Take me to games.</p>
+                            <button class="btn btn-large w-100" style="background: var(--success-color); color: #fff;" data-action="startMeditation">Begin Meditation</button>
+                            <button class="btn btn-large w-100 mt-2" style="background: var(--games-color); color: #fff;" data-action="showSection" data-section="games">Play Cognitive Game</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header" style="background: var(--dashboard-color); color: #fff;" data-en="Recent Activity" data-hi="हाल की गतिविधि">Recent Activity</div>
+                        <div class="card-body">
+                            <ul id="recentActivity" class="list-group list-group-flush">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="medication" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--medication-color); color: #fff;" data-en="Medication Tracker" data-hi="दवा ट्रैकर">Medication Tracker</div>
+                <div class="card-body">
+                    <p class="voice-hint" data-en="Voice command: Add medication or Take me to medication." data-hi="आवाज कमांड: दवा जोड़ें या मुझे दवा पर ले जाएं।">Voice command: Add medication or Take me to medication.</p>
+                    <form id="medForm">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Medication Name" data-hi="दवा का नाम">Medication Name</label>
+                            <input type="text" class="form-control" id="medName" data-en="e.g., Aspirin" data-hi="उदाहरण: एस्पिरिन" placeholder="e.g., Aspirin" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Dosage & Time" data-hi="खुराक और समय">Dosage & Time</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="medDoseText" data-en="e.g., 1 tablet" data-hi="उदाहरण: 1 गोली" placeholder="e.g., 1 tablet" required>
+                                <input type="time" class="form-control" id="medTime" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Description / Purpose" data-hi="विवरण / उद्देश्य">Description / Purpose</label>
+                            <textarea class="form-control" id="medDesc" rows="3" data-en="e.g., For heart health." data-hi="उदाहरण: हृदय स्वास्थ्य के लिए।" placeholder="e.g., For heart health."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-large w-100" style="background: var(--medication-color); color: #fff;" data-action="addMedication" aria-label="Add medication">Add Medication</button>
+                    </form>
+                    <hr>
+                    <h5 class="mt-3" data-en="Current Medications" data-hi="वर्तमान दवाएँ">Current Medications</h5>
+                    <ul id="medList" class="list-group"></ul>
+                    <div class="alert alert-warning mt-3" id="refillAlert" style="display: none;"><i class="fas fa-bell"></i> <span data-en="Reminder: Refill soon." data-hi="रिमाइंडर: जल्दी रिफिल करें।">Reminder: Refill soon.</span></div>
+                    <button class="btn btn-large w-100 mt-2" style="background: var(--medication-color); color: #fff;" data-action="checkInteractions">Check Interactions</button>
+                    <div id="interactionResult" class="alert mt-3" style="display:none;"></div>
+                </div>
+            </div>
+        </section>
+        <section id="doctors" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--doctors-color); color: #fff;" data-en="Doctors" data-hi="डॉक्टर">Doctors</div>
+                <div class="card-body">
+                    <p class="voice-hint" data-en="Voice command: Add doctor or Go to doctors." data-hi="आवाज कमांड: डॉक्टर जोड़ें या डॉक्टर पर जाएं।">Voice command: Add doctor or Go to doctors.</p>
+                    <button type="button" class="btn btn-large w-100 mb-3" style="background: var(--doctors-color); color: #fff;" data-action="findNearby" data-en="Find Nearby Doctors and Pharmacies" data-hi="नजदीकी डॉक्टर और फार्मेसी खोजें">Find Nearby Doctors and Pharmacies</button>
+                    <div id="currentLoc" class="alert alert-info mb-3" style="display: none;"><i class="fas fa-map-marker-alt"></i> <span data-en="Current Location:" data-hi="वर्तमान स्थान:">Current Location:</span> <span id="locCoords"></span></div>
+                    <ul id="nearbyList" class="list-group mb-3" style="display: none;"></ul>
+                    <form id="doctorForm">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Doctor Name" data-hi="डॉक्टर का नाम">Doctor Name</label>
+                            <input type="text" class="form-control" id="doctorName" data-en="e.g., Dr. Smith" data-hi="उदाहरण: डॉ. स्मिथ" placeholder="e.g., Dr. Smith" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Specialty" data-hi="विशेषज्ञता">Specialty</label>
+                            <input type="text" class="form-control" id="specialty" data-en="e.g., Cardiologist" data-hi="उदाहरण: हृदय रोग विशेषज्ञ" placeholder="e.g., Cardiologist" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Contact" data-hi="संपर्क">Contact</label>
+                            <input type="tel" class="form-control" id="doctorContact" data-en="e.g., +1234567890" data-hi="उदाहरण: +1234567890" placeholder="e.g., +1234567890" required>
+                        </div>
+                        <button type="button" class="btn btn-large w-100" style="background: var(--doctors-color); color: #fff;" data-action="addDoctor" aria-label="Add doctor">Add Doctor</button>
+                    </form>
+                    <hr>
+                    <h5 class="mt-3" data-en="Your Doctors" data-hi="आपके डॉक्टर">Your Doctors</h5>
+                    <ul id="doctorList" class="list-group"></ul>
+                </div>
+            </div>
+        </section>
+        <section id="profile" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--profile-color); color: #fff;" data-en="Profile" data-hi="प्रोफाइल">Profile</div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Name" data-hi="नाम">Name</label>
+                            <input type="text" class="form-control" id="profileName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Date of Birth" data-hi="जन्म तिथि">Date of Birth</label>
+                            <input type="date" class="form-control" id="profileDob">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Emergency Contact" data-hi="आपातकालीन संपर्क">Emergency Contact</label>
+                            <input type="tel" class="form-control" id="emergencyContact" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Allergies" data-hi="एलर्जी">Allergies</label>
+                            <textarea class="form-control" id="profileAllergies" rows="2" data-en-placeholder="e.g., Penicillin, Nuts" data-hi-placeholder="उदाहरण: पेनिसिलिन, नट्स"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Blood Type" data-hi="रक्त समूह">Blood Type</label>
+                            <select class="form-select" id="profileBloodType">
+                                <option value="">Select...</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Address" data-hi="पता">Address</label>
+                            <input type="text" class="form-control" id="profileAddress" data-en-placeholder="e.g., 123 Main St, City" data-hi-placeholder="उदाहरण: 123 मुख्य सड़क, शहर">
+                        </div>
+                        <button type="button" class="btn btn-large w-100" style="background: var(--profile-color); color: #fff;" data-action="saveProfile" data-en="Save Profile" data-hi="प्रोफाइल सहेजें">Save Profile</button>
+                    </form>
+                    <div id="profileSummary" class="profile-summary" style="display: none;">
+                        <h5 data-en="Your Profile Summary" data-hi="आपकी प्रोफाइल सारांश">Your Profile Summary</h5>
+                        <ul id="profileSummaryList"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="caretaker" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--profile-color); color: #fff;" data-en="Caretaker" data-hi="देखभालकर्ता">Caretaker</div>
+                <div class="card-body">
+                    <p class="voice-hint" data-en="Voice command: Add caregiver or Text caregiver." data-hi="आवाज कमांड: देखभालकर्ता जोड़ें या देखभालकर्ता को टेक्स्ट करें।">Voice command: Add caregiver or Text caregiver.</p>
+                    <form id="caregiverForm">
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Caretaker Name" data-hi="देखभालकर्ता का नाम">Caretaker Name</label>
+                            <input type="text" class="form-control" id="caregiverName" data-en="e.g., Jane Doe" data-hi="उदाहरण: जेन डो" placeholder="e.g., Jane Doe" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Contact (Phone)" data-hi="संपर्क (फ़ोन)">Contact (Phone)</label>
+                            <input type="tel" class="form-control" id="caregiverContact" data-en="e.g., +1234567890" data-hi="उदाहरण: +1234567890" placeholder="e.g., +1234567890 (include country code)" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-5" data-en="Email" data-hi="ईमेल">Email</label>
+                            <input type="email" class="form-control" id="caregiverEmail" data-en="e.g., jane@example.com" data-hi="उदाहरण: jane@example.com" placeholder="e.g., jane@example.com">
+                        </div>
+                        <button type="button" class="btn btn-large w-100" style="background: var(--profile-color); color: #fff;" data-action="addCaregiver" aria-label="Add caregiver" data-en="Add Caregiver" data-hi="देखभालकर्ता जोड़ें">Add Caregiver</button>
+                    </form>
+                    <hr>
+                    <h5 class="mt-3" data-en="Your Caregivers" data-hi="आपके देखभालकर्ता">Your Caregivers</h5>
+                    <ul id="caregiverList" class="list-group"></ul>
+                </div>
+            </div>
+        </section>
+        <section id="settings" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--settings-color); color: #fff;" data-en="Settings" data-hi="सेटिंग्स">Settings</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fs-5" data-en="Language" data-hi="भाषा">Language</label>
+                        <select class="form-select" id="languageSelect">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fs-5" data-en="Volume" data-hi="आवाज">Volume</label>
+                        <input type="range" class="form-range" id="volumeSlider" min="0" max="100" value="100">
+                    </div>
+                    <button class="btn btn-large w-100" style="background: var(--primary-color); color: #fff;" data-action="toggleHighContrast" data-en="Toggle High Contrast" data-hi="उच्च कंट्रास्ट टॉगल करें">Toggle High Contrast</button>
+                </div>
+            </div>
+        </section>
+        <section id="medication-history" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--history-color); color: #fff;" data-en="Medication History" data-hi="दवा इतिहास">Medication History</div>
+                <div class="card-body">
+                    <ul id="medHistory" class="list-group"></ul>
+                </div>
+            </div>
+        </section>
+        <section id="prescription" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--prescription-color); color: #fff;" data-en="Upload Prescription" data-hi="प्रिस्क्रिप्शन अपलोड करें">Upload Prescription</div>
+                <div class="card-body">
+                    <p class="fs-5" data-en="Upload a prescription image or file." data-hi="प्रिस्क्रिप्शन छवि या फ़ाइल अपलोड करें।">Upload a prescription image or file.</p>
+                    <input type="file" class="form-control mb-3" id="prescriptionFile" accept="image/*,.pdf" onchange="previewPrescription(this)">
+                    <img id="prescriptionPreview" style="display: none;" alt="Prescription Preview">
+                    <button class="btn btn-large w-100" style="background: var(--prescription-color); color: #fff;" data-action="uploadPrescription" data-en="Upload" data-hi="अपलोड">Upload</button>
+                    <div id="prescriptionStatus" class="alert mt-3" style="display:none;"></div>
+                </div>
+            </div>
+        </section>
+        <section id="games" class="content-section">
+            <div class="card">
+                <div class="card-header" style="background: var(--games-color); color: #fff;" data-en="Cognitive Games for Elders" data-hi="बुजुर्गों के लिए संज्ञानात्मक खेल">Cognitive Games for Elders</div>
+                <div class="card-body">
+                    <p class="fs-5" data-en="Play games to keep your mind sharp." data-hi="मन को तेज रखने के लिए खेल खेलें।">Play games to keep your mind sharp.</p>
+                    <button class="btn btn-large w-100 mb-3" style="background: var(--games-color); color: #fff;" onclick="startMemoryGame()" data-en="Memory Match Game" data-hi="मेमोरी मैच गेम">Memory Match Game</button>
+                    <div id="memoryGame" style="display: none; text-align: center;">
+                        <p id="memoryScore" data-en="Score: 0" data-hi="स्कोर: 0">Score: 0</p>
+                        <div id="memoryBoard" class="d-flex flex-wrap justify-content-center"></div>
+                        <button class="btn btn-large mt-3" style="background: var(--primary-color); color: #fff;" onclick="resetMemoryGame()" data-en="New Game" data-hi="नया खेल">New Game</button>
+                    </div>
+                    <button class="btn btn-large w-100 mt-3" style="background: var(--games-color); color: #fff;" onclick="startTriviaGame()" data-en="Trivia Quiz" data-hi="ट्रिविया क्विज़">Trivia Quiz</button>
+                    <div id="triviaGame" style="display: none;">
+                        <p id="triviaQuestion" class="trivia-question"></p>
+                        <div id="triviaOptions"></div>
+                        <button class="btn btn-large mt-3" style="background: var(--primary-color); color: #fff;" onclick="nextTriviaQuestion()" data-en="Next Question" data-hi="अगला प्रश्न">Next Question</button>
+                        <p id="triviaScore" data-en="Score: 0/0" data-hi="स्कोर: 0/0" class="text-center mt-3"></p>
+                    </div>
+                    <button class="btn btn-large w-100 mt-3" style="background: var(--games-color); color: #fff;" onclick="startWordGame()" data-en="Word Guess Game" data-hi="शब्द अनुमान खेल">Word Guess Game</button>
+                    <div id="wordGame">
+                        <p id="wordHint" class="fs-5"></p>
+                        <div id="gallows"></div>
+                        <div id="wordDisplay"></div>
+                        <p id="lives">Lives: 5</p>
+                        <div id="letters"></div>
+                        <button class="btn btn-large mt-3" style="background: var(--primary-color); color: #fff;" onclick="resetWordGame()" data-en="New Game" data-hi="नया खेल">New Game</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <nav class="bottom-nav">
+        <a class="bottom-nav-item active" data-action="showSection" data-section="dashboard"><i class="fas fa-home"></i><span data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</span></a>
+        <a class="bottom-nav-item" data-action="showSection" data-section="medication"><i class="fas fa-pills"></i><span data-en="Medication" data-hi="दवाएँ">Medication</span></a>
+        <a class="bottom-nav-item" data-action="showSection" data-section="doctors"><i class="fas fa-stethoscope"></i><span data-en="Doctors" data-hi="डॉक्टर">Doctors</span></a>
+        <a class="bottom-nav-item" data-action="showSection" data-section="caretaker"><i class="fas fa-user-friends"></i><span data-en="Caretaker" data-hi="देखभालकर्ता">Caretaker</span></a>
+    </nav>
+    <audio id="clickSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NE"></audio>
+    <audio id="successSound" src="data:audio/wav;base64,UklGRlQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NE"></audio>
+    <audio id="alertSound" src="data:audio/wav;base64,UklGRmQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NE"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- EmailJS for real email sending (setup required: see notes in JS) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        let medications = JSON.parse(localStorage.getItem('medications')) || [];
+        let medHistory = JSON.parse(localStorage.getItem('medHistory')) || [];
+        let personal = JSON.parse(localStorage.getItem('personal')) || {};
+        let caregivers = JSON.parse(localStorage.getItem('caregivers')) || [];
+        let doctors = JSON.parse(localStorage.getItem('doctors')) || [];
+        let prescriptions = JSON.parse(localStorage.getItem('prescriptions')) || [];
+        // Games data
+        const triviaQuestions = [
+            { q: "What is the capital of India?", options: ["Delhi", "Mumbai", "Kolkata", "Chennai"], ans: 0, dataEn: "What is the capital of India?", dataHi: "भारत की राजधानी क्या है?", optsEn: ["Delhi", "Mumbai", "Kolkata", "Chennai"], optsHi: ["दिल्ली", "मुंबई", "कोलकाता", "चेन्नई"] },
+            { q: "Which animal is known as the 'King of the Jungle'?", options: ["Lion", "Tiger", "Elephant", "Bear"], ans: 0, dataEn: "Which animal is known as the 'King of the Jungle'?", dataHi: "कौन सा जानवर 'जंगल का राजा' कहलाता है?", optsEn: ["Lion", "Tiger", "Elephant", "Bear"], optsHi: ["शेर", "बाघ", "हाथी", "भालू"] },
+            { q: "What color do you get mixing red and blue?", options: ["Green", "Purple", "Yellow", "Orange"], ans: 1, dataEn: "What color do you get mixing red and blue?", dataHi: "लाल और नीले को मिलाने पर कौन सा रंग मिलता है?", optsEn: ["Green", "Purple", "Yellow", "Orange"], optsHi: ["हरा", "बैंगनी", "पीला", "नारंगी"] },
+            { q: "How many days in a week?", options: ["5", "6", "7", "8"], ans: 2, dataEn: "How many days in a week?", dataHi: "सप्ताह में कितने दिन होते हैं?", optsEn: ["5", "6", "7", "8"], optsHi: ["५", "६", "७", "८"] },
+            { q: "What fruit keeps the doctor away?", options: ["Apple", "Banana", "Orange", "Grape"], ans: 0, dataEn: "What fruit keeps the doctor away?", dataHi: "डॉक्टर को दूर रखने वाला फल कौन सा है?", optsEn: ["Apple", "Banana", "Orange", "Grape"], optsHi: ["सेब", "केला", "संतरा", "अंगूर"] },
+            { q: "Vitamin D is good for what?", options: ["Eyes", "Bones", "Skin", "Hair"], ans: 1, dataEn: "Vitamin D is good for what?", dataHi: "विटामिन डी किसके लिए अच्छा है?", optsEn: ["Eyes", "Bones", "Skin", "Hair"], optsHi: ["आँखें", "हड्डियाँ", "त्वचा", "बाल"] },
+            { q: "How many hours of sleep do elders need?", options: ["4-5", "6-8", "9-10", "11+"], ans: 1, dataEn: "How many hours of sleep do elders need?", dataHi: "बुजुर्गों को कितने घंटे की नींद चाहिए?", optsEn: ["4-5", "6-8", "9-10", "11+"], optsHi: ["४-५", "६-८", "९-१०", "११+"] },
+            { q: "What is the largest ocean?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], ans: 3, dataEn: "What is the largest ocean?", dataHi: "सबसे बड़ा महासागर कौन सा है?", optsEn: ["Atlantic", "Indian", "Arctic", "Pacific"], optsHi: ["अटलांटिक", "हिंद", "आर्कटिक", "प्रशांत"] },
+            { q: "Exercise helps with what?", options: ["Weight gain", "Stress relief", "Laziness", "Overeating"], ans: 1, dataEn: "Exercise helps with what?", dataHi: "व्यायाम किसमें मदद करता है?", optsEn: ["Weight gain", "Stress relief", "Laziness", "Overeating"], optsHi: ["वजन बढ़ाना", "तनाव मुक्ति", "आलस", "अधिक खाना"] },
+            { q: "Who wrote the Ramayana?", options: ["Valmiki", "Tulsidas", "Kalidasa", "Vyas"], ans: 0, dataEn: "Who wrote the Ramayana?", dataHi: "रामायण किसने लिखी?", optsEn: ["Valmiki", "Tulsidas", "Kalidasa", "Vyas"], optsHi: ["वाल्मीकि", "तुलसीदास", "कालिदास", "व्यास"] }
+        ];
+        let currentTrivia = 0, triviaScore = 0;
+        const memoryPairs = ['🍎', '🍌', '🍊', '🍇', '🥕', '🥦', '🍅', '🥑'];
+        let memoryBoard = [], memoryFlipped = [], memoryScore = 0;
+        const wordList = [
+            { en: "HEALTH", hi: "स्वास्थ्य", hintEn: "State of being well", hintHi: "सुंदर होने की अवस्था" },
+            { en: "DOCTOR", hi: "डॉक्टर", hintEn: "Medical professional", hintHi: "चिकित्सा विशेषज्ञ" },
+            { en: "MEDICINE", hi: "दवा", hintEn: "What you take when sick", hintHi: "बीमार होने पर ली जाने वाली" },
+            { en: "EXERCISE", hi: "व्यायाम", hintEn: "Keeps you fit", hintHi: "फिट रखता है" },
+            { en: "NUTRITION", hi: "पोषण", hintEn: "Healthy eating", hintHi: "स्वास्थ्यकर खाना" }
+        ];
+        let currentWordObj, wordArray, guessedLetters = [], lives = 5;
+        const API_USER_AGENT = 'MediMittraApp/1.0 (your-email@example.com)'; // Update with real email!
+        let currentCaregiverId = null; // For send modal
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('introScreen').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                checkPermissions();
+                loadProfile();
+                renderMeds();
+                renderMedHistory();
+                renderCaregivers();
+                renderDoctors();
+                renderPrescriptions();
+                renderProfileSummary();
+                setupMedicationReminders();
+                setupEventListeners();
+                speakWelcome();
+            }, 1500);
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.load();
+                audio.volume = document.getElementById('volumeSlider')?.value / 100 || 1;
+            });
+        });
+        function speakWelcome() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            const phraseEn = "Welcome to Medi Mittra, your trusted health companion.";
+            const phraseHi = "मेडी मित्र में आपका स्वागत है, आपका विश्वसनीय स्वास्थ्य साथी।";
+            const phrase = lang === 'hi' ? phraseHi : phraseEn;
+            
+            // Speak only (no text display)
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+                utterance.volume = (document.getElementById('volumeSlider')?.value || 100) / 100;
+                utterance.rate = 0.8; // Slower for elders
+                speechSynthesis.speak(utterance);
+            }
+            // Silent fallback if unsupported—no alert or text
+            playSound('success');
+        }
+        function setupEventListeners() {
+            document.querySelectorAll('[data-action]').forEach(elem => {
+                elem.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const action = elem.getAttribute('data-action');
+                    const section = elem.getAttribute('data-section');
+                    const id = elem.getAttribute('data-id');
+                    try {
+                        if (action === 'showSection' && section) showSection(section, elem);
+                        else if (action === 'toggleSidebar') toggleSidebar();
+                        else if (action === 'toggleVoiceRecognition') toggleVoiceRecognition();
+                        else if (action === 'requestMicPermission') requestMicPermission();
+                        else if (action === 'addMedication') addMedication();
+                        else if (action === 'startMeditation') startMeditation();
+                        else if (action === 'checkInteractions') checkInteractions();
+                        else if (action === 'saveProfile') saveProfile();
+                        else if (action === 'addCaregiver') addCaregiver();
+                        else if (action === 'addDoctor') addDoctor();
+                        else if (action === 'toggleHighContrast') toggleHighContrast();
+                        else if (action === 'uploadPrescription') uploadPrescription();
+                        else if (action === 'textCaregiver' && id) textCaregiver(id);
+                        else if (action === 'editMed') editMedication(id);
+                        else if (action === 'saveEditMed') saveEditMed();
+                        else if (action === 'editDoctor') editDoctor(id);
+                        else if (action === 'saveEditDoctor') saveEditDoctor();
+                        else if (action === 'editCaregiver') editCaregiver(id);
+                        else if (action === 'saveEditCaregiver') saveEditCaregiver();
+                        else if (action === 'findNearby') findNearby();
+                    } catch (err) {
+                        console.error(`Error in action ${action}:`, err);
+                        alert('An error occurred. Please check the console.');
+                    }
+                });
+            });
+            // Send message button in modal
+            document.addEventListener('click', (e) => {
+                if (e.target.id === 'sendMessageBtn') sendMessage();
+            });
+            const volumeSlider = document.getElementById('volumeSlider');
+            if (volumeSlider) volumeSlider.addEventListener('input', () => {
+                document.querySelectorAll('audio').forEach(audio => audio.volume = volumeSlider.value / 100);
+                localStorage.setItem('volume', volumeSlider.value);
+            });
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
+        }
+        function showSection(sectionId, element) {
+            const section = document.getElementById(sectionId);
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (!section) {
+                alert(lang === 'hi' ? 'यह अनुभाग अभी उपलब्ध नहीं है।' : 'This section is not available yet.');
+                playSound('alert');
+                return;
+            }
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav-item, .nav-link').forEach(nav => nav.classList.remove('active'));
+            section.classList.add('active');
+            if (element) element.classList.add('active');
+            toggleSidebar(false);
+            playSound('click');
+            if (sectionId === 'profile') renderProfileSummary();
+        }
+        function toggleSidebar(show = null) {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const isActive = sidebar.classList.contains('active');
+            sidebar.classList.toggle('active', show !== null ? show : !isActive);
+            backdrop.classList.toggle('active', show !== null ? show : !isActive);
+            playSound('click');
+        }
+        function startMeditation() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            alert(lang === 'hi' ? 'ध्यान सत्र शुरू हो रहा है... शांत रहें।' : 'Starting meditation session... Breathe deeply.');
+            playSound('success');
+        }
+        function checkInteractions() {
+            const result = document.getElementById('interactionResult');
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            result.style.display = 'block';
+            result.className = 'alert alert-info mt-3';
+            result.innerHTML = `<i class="fas fa-info-circle"></i> ${lang === 'hi' ? 'कोई हानिकारक दवा इंटरैक्शन नहीं पाया गया।' : 'No harmful drug interactions found.'}`;
+            playSound('success');
+        }
+        function uploadPrescription() {
+            const fileInput = document.getElementById('prescriptionFile');
+            const status = document.getElementById('prescriptionStatus');
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    prescriptions.push({ name: file.name, data: e.target.result, uploadedAt: new Date().toLocaleString() });
+                    localStorage.setItem('prescriptions', JSON.stringify(prescriptions));
+                    renderPrescriptions();
+                    status.style.display = 'block';
+                    status.className = 'alert alert-success';
+                    status.innerHTML = `<i class="fas fa-check"></i> ${lang === 'hi' ? 'प्रिस्क्रिप्शन अपलोड और सहेजा गया।' : 'Prescription uploaded and saved.'}`;
+                    playSound('success');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                status.style.display = 'block';
+                status.className = 'alert alert-warning';
+                status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${lang === 'hi' ? 'कृपया एक फ़ाइल चुनें।' : 'Please select a file.'}`;
+                playSound('alert');
+            }
+        }
+        function previewPrescription(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const preview = document.getElementById('prescriptionPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function renderPrescriptions() {
+            // Optional: Add a list to show uploaded files
+            console.log('Prescriptions saved:', prescriptions.length);
+        }
+        // Helper to fetch nearby POIs via Overpass API
+        function fetchNearby(lat, lon, amenity) {
+            const query = `[out:json][timeout:25];nwr(around:5000,${lat},${lon})["amenity"="${amenity}"];out body;`;
+            const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+            return fetch(url, {
+                headers: { 'User-Agent': API_USER_AGENT }
+            })
+            .then(response => response.json())
+            .then(data => data.elements || [])
+            .catch(err => {
+                console.error(`Overpass error for ${amenity}:`, err);
+                return [];
+            });
+        }
+        // Helper to reverse geocode coords to address
+        function getAddress(lat, lon) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+            return fetch(url, {
+                headers: { 'User-Agent': API_USER_AGENT }
+            })
+            .then(response => response.json())
+            .then(data => data.display_name || `${lat.toFixed(4)}, ${lon.toFixed(4)}`)
+            .catch(err => {
+                console.error('Reverse geocode error:', err);
+                return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            });
+        }
+        function findNearby() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            const list = document.getElementById('nearbyList');
+            const locDiv = document.getElementById('currentLoc');
+            const coordsSpan = document.getElementById('locCoords');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        const address = await getAddress(latitude, longitude);
+                        coordsSpan.textContent = address;
+                        locDiv.style.display = 'block';
+                        // Fetch hospitals and pharmacies in parallel
+                        const [hospitals, pharmacies] = await Promise.all([
+                            fetchNearby(latitude, longitude, 'hospital'),
+                            fetchNearby(latitude, longitude, 'pharmacy')
+                        ]);
+                        const allPlaces = [
+                            ...hospitals.map(p => ({ ...p, type: 'Hospital' })),
+                            ...pharmacies.map(p => ({ ...p, type: 'Pharmacy' }))
+                        ];
+                        if (allPlaces.length > 0) {
+                            list.innerHTML = '';
+                            list.style.display = 'block';
+                            allPlaces.slice(0, 10).forEach(place => {
+                                const name = place.tags?.name || place.tags?.['name:en'] || 'Unnamed Facility';
+                                const placeLat = place.lat || (place.center?.lat) || latitude;
+                                const placeLon = place.lon || (place.center?.lon) || longitude;
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                li.innerHTML = `
+                                    <div><i class="fas fa-map-marker-alt me-2"></i> ${name} (${place.type})</div>
+                                    <a href="https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${latitude}%2C${longitude}%3B${placeLat}%2C${placeLon}" target="_blank" class="btn btn-sm" style="background: var(--doctors-color); color: #fff;" data-en="Go" data-hi="जाओ">Go</a>
+                                `;
+                                list.appendChild(li);
+                            });
+                            alert(lang === 'hi' ? `नजदीकी ${allPlaces.length} सुविधाएँ लोड हो गईं।` : `Loaded ${allPlaces.length} nearby facilities.`);
+                        } else {
+                            loadMockNearby(latitude, longitude);
+                        }
+                        playSound('success');
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        list.innerHTML = `<li class="list-group-item"><i class="fas fa-exclamation-triangle"></i> ${lang === 'hi' ? 'स्थान अनुमति दें।' : 'Allow location access for better results.'}</li>`;
+                        list.style.display = 'block';
+                        loadMockNearby(); // Fallback
+                        playSound('alert');
+                    }
+                );
+            } else {
+                loadMockNearby(); // Fallback if no geolocation
+                playSound('alert');
+            }
+        }
+        function loadMockNearby(lat = null, lng = null) {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            const list = document.getElementById('nearbyList');
+            const mockNearby = [
+                { name: 'Max Hospital', type: 'Hospital', distance: '1.5 km' },
+                { name: 'Apollo Pharmacy', type: 'Pharmacy', distance: '0.9 km' },
+                { name: 'Fortis Clinic', type: 'Hospital', distance: '2.3 km' },
+                { name: 'MedPlus Store', type: 'Pharmacy', distance: '1.1 km' },
+                { name: 'AIIMS Outpost', type: 'Hospital', distance: '3.0 km' }
+            ];
+            list.innerHTML = '';
+            list.style.display = 'block';
+            mockNearby.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    <div><i class="fas fa-map-marker-alt me-2"></i> ${item.name} (${item.type}) - ${item.distance}</div>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(item.name)}" target="_blank" class="btn btn-sm" style="background: var(--doctors-color); color: #fff;" data-en="Go" data-hi="जाओ">Go</a>
+                `;
+                list.appendChild(li);
+            });
+            alert(lang === 'hi' ? 'मॉक डेटा लोड हो गया (API त्रुटि के कारण)।' : 'Mock data loaded (due to API error).');
+        }
+        // Game Functions
+        function startMemoryGame() {
+            document.getElementById('triviaGame').style.display = 'none';
+            document.getElementById('wordGame').style.display = 'none';
+            const gameDiv = document.getElementById('memoryGame');
+            gameDiv.style.display = 'block';
+            resetMemoryGame();
+        }
+        function resetMemoryGame() {
+            memoryScore = 0;
+            document.getElementById('memoryScore').textContent = 'Score: 0';
+            memoryFlipped = [];
+            const board = document.getElementById('memoryBoard');
+            const pairs = [...memoryPairs, ...memoryPairs];
+            pairs.sort(() => Math.random() - 0.5);
+            board.innerHTML = '';
+            pairs.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.dataset.symbol = symbol;
+                card.dataset.index = index;
+                card.innerHTML = '?';
+                card.addEventListener('click', flipCard);
+                board.appendChild(card);
+            });
+        }
+        function flipCard(e) {
+            const card = e.target;
+            if (memoryFlipped.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+                card.classList.add('flipped');
+                card.innerHTML = card.dataset.symbol;
+                memoryFlipped.push(card);
+                if (memoryFlipped.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+        function checkMatch() {
+            if (memoryFlipped[0].dataset.symbol === memoryFlipped[1].dataset.symbol) {
+                memoryFlipped.forEach(c => c.classList.add('matched'));
+                memoryScore += 10;
+                document.getElementById('memoryScore').textContent = `Score: ${memoryScore}`;
+                playSound('success');
+            } else {
+                memoryFlipped.forEach(c => {
+                    c.classList.remove('flipped');
+                    c.innerHTML = '?';
+                });
+                playSound('alert');
+            }
+            memoryFlipped = [];
+            const allMatched = document.querySelectorAll('.game-card.matched').length === 16;
+            if (allMatched) alert('Great job! You won!');
+        }
+        function startTriviaGame() {
+            document.getElementById('memoryGame').style.display = 'none';
+            document.getElementById('wordGame').style.display = 'none';
+            const gameDiv = document.getElementById('triviaGame');
+            gameDiv.style.display = 'block';
+            triviaQuestions.sort(() => Math.random() - 0.5); // Shuffle for variety
+            currentTrivia = 0;
+            triviaScore = 0;
+            nextTriviaQuestion();
+        }
+        function nextTriviaQuestion() {
+            if (currentTrivia >= triviaQuestions.length) {
+                document.getElementById('triviaQuestion').textContent = 'Quiz Complete!';
+                document.getElementById('triviaOptions').innerHTML = '';
+                document.getElementById('triviaScore').textContent = `Final Score: ${triviaScore}/${triviaQuestions.length}`;
+                playSound('success');
+                return;
+            }
+            const q = triviaQuestions[currentTrivia];
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            document.getElementById('triviaQuestion').textContent = lang === 'hi' ? q.dataHi : q.dataEn;
+            const optionsDiv = document.getElementById('triviaOptions');
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'trivia-option w-100 btn btn-outline-primary';
+                btn.textContent = (lang === 'hi' ? q.optsHi[i] : opt);
+                btn.onclick = () => selectTriviaAnswer(i);
+                optionsDiv.appendChild(btn);
+            });
+        }
+        function selectTriviaAnswer(selected) {
+            const q = triviaQuestions[currentTrivia];
+            const options = document.querySelectorAll('.trivia-option');
+            options.forEach((opt, i) => {
+                if (i === q.ans) opt.classList.add('correct');
+                else if (i === selected && i !== q.ans) opt.classList.add('incorrect');
+                opt.disabled = true;
+            });
+            if (selected === q.ans) triviaScore++;
+            document.getElementById('triviaScore').textContent = `Score: ${triviaScore}/${currentTrivia + 1}`;
+            playSound(selected === q.ans ? 'success' : 'alert');
+            currentTrivia++;
+            setTimeout(nextTriviaQuestion, 2000);
+        }
+        function startWordGame() {
+            document.getElementById('memoryGame').style.display = 'none';
+            document.getElementById('triviaGame').style.display = 'none';
+            document.getElementById('wordGame').style.display = 'block';
+            resetWordGame();
+        }
+        function resetWordGame() {
+            const randomIdx = Math.floor(Math.random() * wordList.length);
+            currentWordObj = wordList[randomIdx];
+            wordArray = currentWordObj.en.split('');
+            guessedLetters = [];
+            lives = 5;
+            updateDisplay();
+            drawGallows(0);
+            renderLetters();
+        }
+        function updateDisplay() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            document.getElementById('wordHint').textContent = (lang === 'hi' ? currentWordObj.hintHi : currentWordObj.hintEn);
+            document.getElementById('lives').textContent = `Lives: ${lives}`;
+            const display = wordArray.map(letter => guessedLetters.includes(letter) ? letter : '_').join(' ');
+            document.getElementById('wordDisplay').textContent = display;
+            const won = !display.includes('_');
+            const lost = lives <= 0;
+            if (won) { alert(lang === 'hi' ? 'बधाई! आप जीत गए!' : 'Congratulations! You won!'); playSound('success'); }
+            if (lost) { alert(lang === 'hi' ? `खेल समाप्त! शब्द था: ${currentWordObj.en}` : `Game Over! Word was: ${currentWordObj.en}`); playSound('alert'); }
+        }
+        function drawGallows(parts) { // Simple text-based gallows
+            const gallows = document.getElementById('gallows');
+            let art = `
+  _____
+ |   |
+ |   ${parts > 0 ? 'O' : ''}
+ |  ${parts > 2 ? '/' : ''}${parts > 1 ? '|' : ''}${parts > 3 ? '\\' : ''}
+ |   ${parts > 4 ? '|' : ''}
+ |  ${parts > 5 ? '/' : ''} ${parts > 5 ? '\\' : ''}
+ |
+===`;
+            gallows.innerHTML = art.replace(/\n/g, '<br>');
+        }
+        function renderLetters() {
+            const lettersDiv = document.getElementById('letters');
+            lettersDiv.innerHTML = '';
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn btn btn-outline-primary';
+                btn.textContent = letter;
+                btn.onclick = () => guessLetter(letter);
+                if (guessedLetters.includes(letter)) btn.disabled = true;
+                lettersDiv.appendChild(btn);
+            });
+        }
+        function guessLetter(letter) {
+            if (guessedLetters.includes(letter) || lives <= 0) return;
+            guessedLetters.push(letter);
+            if (!wordArray.includes(letter)) {
+                lives--;
+                drawGallows(6 - lives); // 0-5 parts
+                playSound('alert');
+            } else {
+                playSound('success');
+            }
+            updateDisplay();
+            renderLetters();
+        }
+        // Real Caretaker Messaging
+        function textCaregiver(caregiverId) {
+            openSendModal(caregiverId);
+        }
+        function openSendModal(caregiverId) {
+            const caregiver = caregivers.find(c => c.id === Number(caregiverId));
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (!caregiver) {
+                alert(lang === 'hi' ? 'देखभालकर्ता नहीं मिला।' : 'Caregiver not found.');
+                playSound('alert');
+                return;
+            }
+            currentCaregiverId = caregiverId;
+            document.getElementById('sendModalTitle').textContent = lang === 'hi' ? `संदेश ${caregiver.name} को` : `Message to ${caregiver.name}`;
+            document.getElementById('messageText').placeholder = lang === 'hi' ? 'अपना संदेश दर्ज करें...' : 'Enter your message...';
+            const methodSelect = document.getElementById('sendMethod');
+            methodSelect.value = caregiver.email ? 'email' : 'sms';
+            updateContactInfo();
+            methodSelect.onchange = updateContactInfo; // Update on change
+            new bootstrap.Modal(document.getElementById('sendMessageModal')).show();
+        }
+        function updateContactInfo() {
+            const method = document.getElementById('sendMethod').value;
+            const caregiver = caregivers.find(c => c.id === Number(currentCaregiverId));
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            const infoEl = document.getElementById('contactInfo');
+            if (method === 'sms') {
+                infoEl.innerHTML = `<i class="fas fa-phone"></i> ${lang === 'hi' ? 'फ़ोन:' : 'Phone:'} ${caregiver.contact}`;
+            } else {
+                if (caregiver.email) {
+                    infoEl.innerHTML = `<i class="fas fa-envelope"></i> ${lang === 'hi' ? 'ईमेल:' : 'Email:'} ${caregiver.email}`;
+                } else {
+                    infoEl.innerHTML = `<span class="text-warning">${lang === 'hi' ? 'ईमेल सेट नहीं। SMS का उपयोग करें।' : 'No email set. Use SMS.'}</span>`;
+                    document.getElementById('sendMethod').value = 'sms'; // Fallback
+                }
+            }
+        }
+        function sendMessage() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            const msg = document.getElementById('messageText').value.trim();
+            if (!msg) {
+                alert(lang === 'hi' ? 'कृपया संदेश दर्ज करें।' : 'Please enter a message.');
+                playSound('alert');
+                return;
+            }
+            const method = document.getElementById('sendMethod').value;
+            const caregiver = caregivers.find(c => c.id === Number(currentCaregiverId));
+            if (!caregiver) return;
+            if (method === 'sms') {
+                if (!/^\+?[\d\s-()]{10,}$/.test(caregiver.contact)) {
+                    alert(lang === 'hi' ? 'अमान्य फ़ोन नंबर। देश कोड शामिल करें (उदा. +91)।' : 'Invalid phone number. Include country code (e.g., +91).');
+                    return;
+                }
+                sendSMS(caregiver.contact, msg);
+            } else {
+                if (!caregiver.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(caregiver.email)) {
+                    alert(lang === 'hi' ? 'ईमेल सेट नहीं या अमान्य।' : 'No valid email set.');
+                    return;
+                }
+                sendEmail(caregiver.email, msg);
+            }
+            bootstrap.Modal.getInstance(document.getElementById('sendMessageModal')).hide();
+        }
+        function sendSMS(phone, message) {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            fetch('https://textbelt.com/text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    message: message,
+                    key: 'textbelt' // Free: 1/day. For more, get paid key at textbelt.com and replace here.
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(lang === 'hi' ? 'एसएमएस भेजा गया!' : 'SMS sent!');
+                    playSound('success');
+                } else {
+                    alert(lang === 'hi' ? `भेजने में विफल: ${data.error || 'अज्ञात'}। मुफ्त सीमा: 1/दिन। textbelt.com पर भुगतान कुंजी प्राप्त करें।` : `Failed: ${data.error || 'Unknown'}. Free: 1/day. Get paid key at textbelt.com.`);
+                    playSound('alert');
+                }
+            })
+            .catch(err => {
+                alert(lang === 'hi' ? 'एसएमएस भेजने में त्रुटि।' : 'Error sending SMS.');
+                console.error(err);
+                playSound('alert');
+            });
+        }
+        function sendEmail(toEmail, message) {
+            // SETUP REQUIRED: Replace with your EmailJS details (emailjs.com)
+            const serviceID = 'YOUR_SERVICE_ID'; // e.g., 'service_abc123'
+            const templateID = 'YOUR_TEMPLATE_ID'; // e.g., 'template_def456'
+            const userID = 'YOUR_PUBLIC_KEY'; // e.g., 'user_ghi789'
+            if (serviceID === 'YOUR_SERVICE_ID') {
+                alert('EmailJS setup required: Visit emailjs.com, get IDs, and replace in code.');
+                return;
+            }
+            emailjs.init(userID);
+            const templateParams = {
+                to_email: toEmail,
+                message: message,
+                from_name: personal.name || 'Meddi Mitra User'
+                // Add more params to match your template (e.g., subject)
+            };
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            emailjs.send(serviceID, templateID, templateParams)
+                .then(() => {
+                    alert(lang === 'hi' ? 'ईमेल भेजा गया!' : 'Email sent!');
+                    playSound('success');
+                }, (err) => {
+                    alert(lang === 'hi' ? 'ईमेल भेजने में विफल। कंसोल जांचें।' : 'Failed to send email. Check console.');
+                    console.error(err);
+                    playSound('alert');
+                });
+        }
+        function setupMedicationReminders() {
+            if (!("Notification" in window)) return;
+            if (Notification.permission !== "granted") Notification.requestPermission();
+            setInterval(() => {
+                const now = new Date();
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                medications.forEach(med => {
+                    if (med.time === currentTime && Notification.permission === "granted") {
+                        new Notification(`Time to take ${med.name}`, {
+                            body: `Dosage: ${med.dose}\n${med.desc || 'No description.'}`,
+                            icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMwMDU1NjYiLz4KPHBhdGggZD0iTTE2IDEyQzE0LjM1MjkgMTIgMTMgMTMuMzUyOSAxMyAxNVYxOUMxMyAyMC42NDcxIDE0LjM1MjkgMjIgMTYgMjJDMjEuNjQ3MSAyMiAyMyAyMC42NDcxIDIzIDE5VjE1QzIzIDEzLjM1MjkgMjEuNjQ3MSAxMiAxNiAxMlpNMTYgMjBDMjEuNjQ3MSAyMCAyNiAxNS42NDcxIDI2IDEwQzI2IDQuMzUyOSAyMS42NDcxIDIgMTYgMkMxMC4zNTI5IDIgNiA0LjM1MjkgNiAxMEM2IDE1LjY0NzEgMTAuMzUyOSAyMCAxNiAyMFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo='
+                        });
+                        playSound('alert');
+                        if (caregivers.length > 0) caregivers.forEach(caregiver => console.log(`Reminder to ${caregiver.name}: Time for ${med.name}`));
+                    }
+                });
+            }, 60000);
+        }
+        function addMedication(nameParam, doseParam, descParam, timeParam) {
+            const name = nameParam || document.getElementById('medName')?.value;
+            const doseText = doseParam || document.getElementById('medDoseText')?.value;
+            const time = timeParam || document.getElementById('medTime')?.value;
+            const desc = descParam || document.getElementById('medDesc')?.value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (name && doseText && time) {
+                const dose = `${doseText} at ${time}`;
+                medications.push({ name, dose, desc, time, id: Date.now() });
+                localStorage.setItem('medications', JSON.stringify(medications));
+                if (!nameParam) document.getElementById('medForm')?.reset();
+                renderMeds();
+                alert(lang === 'hi' ? 'दवा जोड़ी गई।' : 'Medication added.');
+                playSound('success');
+            } else {
+                alert(lang === 'hi' ? 'कृपया दवा का नाम, खुराक, और समय दर्ज करें।' : 'Please enter medication name, dosage, and time.');
+                playSound('alert');
+            }
+        }
+        function editMedication(medId) {
+            const med = medications.find(m => m.id === Number(medId));
+            if (med) {
+                document.getElementById('editMedId').value = med.id;
+                document.getElementById('editMedName').value = med.name;
+                document.getElementById('editMedDoseText').value = med.dose.split(' at ')[0];
+                document.getElementById('editMedTime').value = med.time;
+                document.getElementById('editMedDesc').value = med.desc || '';
+                new bootstrap.Modal(document.getElementById('editMedModal')).show();
+            }
+        }
+        function saveEditMed() {
+            const id = Number(document.getElementById('editMedId').value);
+            const name = document.getElementById('editMedName').value;
+            const doseText = document.getElementById('editMedDoseText').value;
+            const time = document.getElementById('editMedTime').value;
+            const desc = document.getElementById('editMedDesc').value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (name && doseText && time) {
+                const index = medications.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    medications[index] = { name, dose: `${doseText} at ${time}`, desc, time, id };
+                    localStorage.setItem('medications', JSON.stringify(medications));
+                    renderMeds();
+                    bootstrap.Modal.getInstance(document.getElementById('editMedModal')).hide();
+                    alert(lang === 'hi' ? 'दवा अपडेट की गई।' : 'Medication updated.');
+                    playSound('success');
+                }
+            } else {
+                alert(lang === 'hi' ? 'कृपया सभी आवश्यक फ़ील्ड भरें।' : 'Please fill all required fields.');
+                playSound('alert');
+            }
+        }
+        function renderMeds() {
+            const list = document.getElementById('medList');
+            if (list) list.innerHTML = '';
+            medications.forEach(med => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-start flex-column';
+                li.innerHTML = `
+                    <div><strong>${med.name}</strong> - ${med.dose}<br><em>${med.desc || 'No description.'}</em></div>
+                    <div class="mt-2 w-100">
+                        <button class="btn btn-sm" style="background: var(--success-color); color: #fff;" onclick="logTaken(${med.id})" data-en="Taken" data-hi="लिया">Taken</button>
+                        <button class="btn btn-sm ms-2" style="background: var(--primary-color); color: #fff;" data-action="editMed" data-id="${med.id}" data-en="Edit" data-hi="संपादित करें">Edit</button>
+                        <button class="btn btn-sm ms-2" style="background: var(--danger-color); color: #fff;" onclick="deleteMed(${med.id})" data-en="Delete" data-hi="हटाएँ">Delete</button>
+                    </div>`;
+                list.appendChild(li);
+            });
+            const todayMeds = document.getElementById('todayMeds');
+            if (todayMeds) {
+                todayMeds.innerHTML = '';
+                const todayMedsList = medications.map(med => `<li><i class="fas fa-clock"></i> ${med.name} - ${med.dose}</li>`).join('');
+                todayMeds.innerHTML = todayMedsList || `<li>${document.getElementById('languageSelect')?.value === 'hi' ? 'आज के लिए कोई दवा नहीं।' : 'No medications today.'}</li>`;
+            }
+        }
+        function logTaken(medId) {
+            const med = medications.find(m => m.id === Number(medId));
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (med) {
+                medHistory.push({ ...med, takenAt: new Date().toLocaleString() });
+                localStorage.setItem('medHistory', JSON.stringify(medHistory));
+                renderMedHistory();
+                alert(lang === 'hi' ? `${med.name} लॉग की गई।` : `${med.name} logged as taken.`);
+                playSound('success');
+            }
+        }
+        function deleteMed(medId) {
+            medications = medications.filter(m => m.id !== Number(medId));
+            localStorage.setItem('medications', JSON.stringify(medications));
+            renderMeds();
+            playSound('click');
+        }
+        function loadProfile() {
+            const profileName = document.getElementById('profileName');
+            const emergencyContact = document.getElementById('emergencyContact');
+            const profileDob = document.getElementById('profileDob');
+            const profileAllergies = document.getElementById('profileAllergies');
+            const profileBloodType = document.getElementById('profileBloodType');
+            const profileAddress = document.getElementById('profileAddress');
+            if (profileName) profileName.value = personal.name || '';
+            if (emergencyContact) emergencyContact.value = personal.emergencyContact || '';
+            if (profileDob) profileDob.value = personal.dob || '';
+            if (profileAllergies) profileAllergies.value = personal.allergies || '';
+            if (profileBloodType) profileBloodType.value = personal.bloodType || '';
+            if (profileAddress) profileAddress.value = personal.address || '';
+        }
+        function saveProfile() {
+            const profileName = document.getElementById('profileName')?.value;
+            const emergencyContact = document.getElementById('emergencyContact')?.value;
+            const profileDob = document.getElementById('profileDob')?.value;
+            const profileAllergies = document.getElementById('profileAllergies')?.value;
+            const profileBloodType = document.getElementById('profileBloodType')?.value;
+            const profileAddress = document.getElementById('profileAddress')?.value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (profileName && emergencyContact) {
+                personal = {
+                    name: profileName,
+                    emergencyContact,
+                    dob: profileDob,
+                    allergies: profileAllergies,
+                    bloodType: profileBloodType,
+                    address: profileAddress
+                };
+                localStorage.setItem('personal', JSON.stringify(personal));
+                renderProfileSummary();
+                alert(lang === 'hi' ? 'प्रोफाइल सहेजी गई।' : 'Profile saved.');
+                playSound('success');
+            } else {
+                alert(lang === 'hi' ? 'कृपया नाम और आपातकालीन संपर्क दर्ज करें।' : 'Please enter name and emergency contact.');
+                playSound('alert');
+            }
+        }
+        function renderProfileSummary() {
+            const summaryDiv = document.getElementById('profileSummary');
+            const list = document.getElementById('profileSummaryList');
+            if (!personal.name) {
+                summaryDiv.style.display = 'none';
+                return;
+            }
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            list.innerHTML = `
+                <li><strong>${lang === 'hi' ? 'नाम:' : 'Name:'}</strong> ${personal.name}</li>
+                ${personal.dob ? `<li><strong>${lang === 'hi' ? 'जन्म तिथि:' : 'DOB:'}</strong> ${personal.dob}</li>` : ''}
+                <li><strong>${lang === 'hi' ? 'आपात संपर्क:' : 'Emergency Contact:'}</strong> ${personal.emergencyContact}</li>
+                ${personal.allergies ? `<li><strong>${lang === 'hi' ? 'एलर्जी:' : 'Allergies:'}</strong> ${personal.allergies}</li>` : ''}
+                ${personal.bloodType ? `<li><strong>${lang === 'hi' ? 'रक्त समूह:' : 'Blood Type:'}</strong> ${personal.bloodType}</li>` : ''}
+                ${personal.address ? `<li><strong>${lang === 'hi' ? 'पता:' : 'Address:'}</strong> ${personal.address}</li>` : ''}
+            `;
+            summaryDiv.style.display = 'block';
+        }
+        function renderMedHistory() {
+            const list = document.getElementById('medHistory');
+            if (list) {
+                list.innerHTML = '';
+                if (medHistory.length === 0) {
+                    list.innerHTML = `<li class="list-group-item">${document.getElementById('languageSelect')?.value === 'hi' ? 'कोई दवा इतिहास उपलब्ध नहीं।' : 'No medication history available.'}</li>`;
+                } else {
+                    medHistory.forEach(entry => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = `${entry.name} - ${entry.dose} (Taken: ${entry.takenAt})`;
+                        list.appendChild(li);
+                    });
+                }
+            }
+            const recentActivity = document.getElementById('recentActivity');
+            if (recentActivity) {
+                recentActivity.innerHTML = '';
+                if (medHistory.length === 0) {
+                    recentActivity.innerHTML = `<li class="list-group-item">${document.getElementById('languageSelect')?.value === 'hi' ? 'कोई हाल की गतिविधि नहीं।' : 'No recent activity.'}</li>`;
+                } else {
+                    medHistory.slice(-3).forEach(entry => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.innerHTML = `<i class="fas fa-pills"></i> ${entry.name} taken at ${entry.takenAt}`;
+                        recentActivity.appendChild(li);
+                    });
+                }
+            }
+        }
+        function addCaregiver() {
+            const caregiverName = document.getElementById('caregiverName')?.value;
+            const caregiverContact = document.getElementById('caregiverContact')?.value;
+            const caregiverEmail = document.getElementById('caregiverEmail')?.value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (caregiverName && caregiverContact) {
+                if (!/^\+?[\d\s-()]{10,}$/.test(caregiverContact)) {
+                    alert(lang === 'hi' ? 'अमान्य फ़ोन नंबर। देश कोड शामिल करें।' : 'Invalid phone. Include country code.');
+                    return;
+                }
+                caregivers.push({ name: caregiverName, contact: caregiverContact, email: caregiverEmail || '', id: Date.now() });
+                localStorage.setItem('caregivers', JSON.stringify(caregivers));
+                document.getElementById('caregiverForm')?.reset();
+                renderCaregivers();
+                alert(lang === 'hi' ? 'देखभालकर्ता जोड़ा गया।' : 'Caregiver added.');
+                playSound('success');
+            } else {
+                alert(lang === 'hi' ? 'कृपया नाम और फ़ोन दर्ज करें।' : 'Please enter name and phone.');
+                playSound('alert');
+            }
+        }
+        function editCaregiver(caregiverId) {
+            const caregiver = caregivers.find(c => c.id === Number(caregiverId));
+            if (caregiver) {
+                document.getElementById('editCaregiverId').value = caregiver.id;
+                document.getElementById('editCaregiverName').value = caregiver.name;
+                document.getElementById('editCaregiverContact').value = caregiver.contact;
+                document.getElementById('editCaregiverEmail').value = caregiver.email || '';
+                new bootstrap.Modal(document.getElementById('editCaregiverModal')).show();
+            }
+        }
+        function saveEditCaregiver() {
+            const id = Number(document.getElementById('editCaregiverId').value);
+            const name = document.getElementById('editCaregiverName').value;
+            const contact = document.getElementById('editCaregiverContact').value;
+            const email = document.getElementById('editCaregiverEmail').value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (name && contact) {
+                if (!/^\+?[\d\s-()]{10,}$/.test(contact)) {
+                    alert(lang === 'hi' ? 'अमान्य फ़ोन नंबर।' : 'Invalid phone number.');
+                    return;
+                }
+                const index = caregivers.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    caregivers[index] = { name, contact, email: email || '', id };
+                    localStorage.setItem('caregivers', JSON.stringify(caregivers));
+                    renderCaregivers();
+                    bootstrap.Modal.getInstance(document.getElementById('editCaregiverModal')).hide();
+                    alert(lang === 'hi' ? 'देखभालकर्ता अपडेट किया गया।' : 'Caregiver updated.');
+                    playSound('success');
+                }
+            } else {
+                alert(lang === 'hi' ? 'कृपया सभी आवश्यक फ़ील्ड भरें।' : 'Please fill all required fields.');
+                playSound('alert');
+            }
+        }
+        function renderCaregivers() {
+            const list = document.getElementById('caregiverList');
+            if (list) {
+                list.innerHTML = '';
+                caregivers.forEach(caregiver => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-start';
+                    li.innerHTML = `
+                        <div><strong>${caregiver.name}</strong><br>${caregiver.contact}${caregiver.email ? `<br><small><i class="fas fa-envelope"></i> ${caregiver.email}</small>` : ''}</div>
+                        <div>
+                            <button class="btn btn-sm" style="background: var(--success-color); color: #fff;" data-action="textCaregiver" data-id="${caregiver.id}" data-en="Text" data-hi="टेक्स्ट">Text</button>
+                            <button class="btn btn-sm ms-2" style="background: var(--primary-color); color: #fff;" data-action="editCaregiver" data-id="${caregiver.id}" data-en="Edit" data-hi="संपादित करें">Edit</button>
+                            <button class="btn btn-sm ms-2" style="background: var(--danger-color); color: #fff;" onclick="deleteCaregiver(${caregiver.id})" data-en="Delete" data-hi="हटाएँ">Delete</button>
+                        </div>`;
+                    list.appendChild(li);
+                });
+            }
+        }
+        function deleteCaregiver(caregiverId) {
+            caregivers = caregivers.filter(c => c.id !== Number(caregiverId));
+            localStorage.setItem('caregivers', JSON.stringify(caregivers));
+            renderCaregivers();
+            playSound('click');
+        }
+        function addDoctor() {
+            const doctorName = document.getElementById('doctorName')?.value;
+            const specialty = document.getElementById('specialty')?.value;
+            const contact = document.getElementById('doctorContact')?.value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (doctorName && specialty && contact) {
+                doctors.push({ name: doctorName, specialty, contact, id: Date.now() });
+                localStorage.setItem('doctors', JSON.stringify(doctors));
+                document.getElementById('doctorForm')?.reset();
+                renderDoctors();
+                alert(lang === 'hi' ? 'डॉक्टर जोड़ा गया।' : 'Doctor added.');
+                playSound('success');
+            } else {
+                alert(lang === 'hi' ? 'कृपया डॉक्टर का नाम, विशेषज्ञता, और संपर्क दर्ज करें।' : 'Please enter doctor name, specialty, and contact.');
+                playSound('alert');
+            }
+        }
+        function editDoctor(doctorId) {
+            const doctor = doctors.find(d => d.id === Number(doctorId));
+            if (doctor) {
+                document.getElementById('editDoctorId').value = doctor.id;
+                document.getElementById('editDoctorName').value = doctor.name;
+                document.getElementById('editSpecialty').value = doctor.specialty;
+                document.getElementById('editDoctorContact').value = doctor.contact;
+                new bootstrap.Modal(document.getElementById('editDoctorModal')).show();
+            }
+        }
+        function saveEditDoctor() {
+            const id = Number(document.getElementById('editDoctorId').value);
+            const name = document.getElementById('editDoctorName').value;
+            const specialty = document.getElementById('editSpecialty').value;
+            const contact = document.getElementById('editDoctorContact').value;
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            if (name && specialty && contact) {
+                const index = doctors.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    doctors[index] = { name, specialty, contact, id };
+                    localStorage.setItem('doctors', JSON.stringify(doctors));
+                    renderDoctors();
+                    bootstrap.Modal.getInstance(document.getElementById('editDoctorModal')).hide();
+                    alert(lang === 'hi' ? 'डॉक्टर अपडेट किया गया।' : 'Doctor updated.');
+                    playSound('success');
+                }
+            } else {
+                alert(lang === 'hi' ? 'कृपया सभी आवश्यक फ़ील्ड भरें।' : 'Please fill all required fields.');
+                playSound('alert');
+            }
+        }
+        function renderDoctors() {
+            const list = document.getElementById('doctorList');
+            if (list) {
+                list.innerHTML = '';
+                doctors.forEach(doctor => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-start';
+                    li.innerHTML = `
+                        <div><strong>${doctor.name}</strong> - ${doctor.specialty}<br>${doctor.contact}</div>
+                        <div>
+                            <button class="btn btn-sm" style="background: var(--primary-color); color: #fff;" data-action="editDoctor" data-id="${doctor.id}" data-en="Edit" data-hi="संपादित करें">Edit</button>
+                            <button class="btn btn-sm ms-2" style="background: var(--danger-color); color: #fff;" onclick="deleteDoctor(${doctor.id})" data-en="Delete" data-hi="हटाएँ">Delete</button>
+                        </div>`;
+                    list.appendChild(li);
+                });
+            }
+        }
+        function deleteDoctor(doctorId) {
+            doctors = doctors.filter(d => d.id !== Number(doctorId));
+            localStorage.setItem('doctors', JSON.stringify(doctors));
+            renderDoctors();
+            playSound('click');
+        }
+        let recognition = null;
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.onresult = event => {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                const lang = document.getElementById('languageSelect')?.value || 'en';
+                const sections = {
+                    'dashboard': ['dashboard', 'डैशबोर्ड'],
+                    'medication': ['medication', 'दवाएँ', 'add medication', 'दवा जोड़ें'],
+                    'doctors': ['doctors', 'डॉक्टर', 'find doctors', 'डॉक्टर खोजें', 'find nearby', 'नजदीकी खोजें'],
+                    'medication-history': ['medication history', 'दवा इतिहास', 'view history', 'इतिहास देखें'],
+                    'profile': ['profile', 'प्रोफाइल'],
+                    'caretaker': ['caretaker', 'देखभालकर्ता', 'add caregiver', 'देखभालकर्ता जोड़ें', 'text caregiver', 'देखभालकर्ता को टेक्स्ट करें'],
+                    'settings': ['settings', 'सेटिंग्स'],
+                    'prescription': ['prescription', 'प्रिस्क्रिप्शन', 'upload prescription', 'प्रिस्क्रिप्शन अपलोड करें'],
+                    'games': ['games', 'खेल', 'start game', 'खेल शुरू करें', 'memory game', 'ट्रिविया']
+                };
+                let matchedSection = null;
+                for (const [section, phrases] of Object.entries(sections)) {
+                    if (phrases.some(phrase => transcript.includes(phrase) || transcript.includes(`take me to ${phrase}`) || transcript.includes(`मुझे ${phrase} पर ले जाएं`))) {
+                        matchedSection = section;
+                        break;
+                    }
+                }
+                if (matchedSection) showSection(matchedSection, null);
+                else if (transcript.includes('start meditation') || transcript.includes('ध्यान शुरू करें')) startMeditation();
+                else if (transcript.includes('start game') || transcript.includes('खेल शुरू करें') || transcript.includes('memory') || transcript.includes('ट्रिविया')) {
+                    showSection('games', null);
+                    setTimeout(() => startMemoryGame(), 500); // Default to memory
+                } else if (transcript.includes('add medication') || transcript.includes('दवा जोड़ें')) {
+                    const name = prompt(lang === 'hi' ? 'दवा का नाम दर्ज करें:' : 'Enter medication name:');
+                    const dose = prompt(lang === 'hi' ? 'खुराक दर्ज करें (उदाहरण: 1 गोली):' : 'Enter dosage (e.g., 1 tablet):');
+                    const time = prompt(lang === 'hi' ? 'समय दर्ज करें (HH:MM):' : 'Enter time (HH:MM):');
+                    const desc = prompt(lang === 'hi' ? 'नोट्स दर्ज करें (वैकल्पिक):' : 'Enter notes (optional):') || '';
+                    addMedication(name, dose, desc, time);
+                } else if (transcript.includes('text caregiver') || transcript.includes('देखभालकर्ता को टेक्स्ट करें')) {
+                    if (caregivers.length > 0) {
+                        const id = prompt(lang === 'hi' ? 'देखभालकर्ता ID दर्ज करें (सूची देखें):' : 'Enter caregiver ID (check list):');
+                        if (id) textCaregiver(id);
+                    } else {
+                        alert(lang === 'hi' ? 'कोई देखभालकर्ता नहीं। पहले जोड़ें।' : 'No caregivers. Add first.');
+                    }
+                } else if (transcript.includes('find nearby') || transcript.includes('नजदीकी खोजें')) findNearby();
+                else {
+                    alert(lang === 'hi' ? `आवाज कमांड समझ नहीं आया: ${transcript}` : `Voice command not understood: ${transcript}`);
+                    playSound('alert');
+                }
+                alert(lang === 'hi' ? `आवाज कमांड: ${transcript}` : `Voice command: ${transcript}`);
+                playSound('success');
+            };
+            recognition.onerror = event => {
+                console.error('Speech recognition error:', event.error);
+                const lang = document.getElementById('languageSelect')?.value || 'en';
+                alert(lang === 'hi' ? 'आवाज पहचान में त्रुटि।' : 'Voice recognition error.');
+                playSound('alert');
+            };
+        }
+        function toggleVoiceRecognition() {
+            if (!recognition) {
+                const lang = document.getElementById('languageSelect')?.value || 'en';
+                alert(lang === 'hi' ? 'आवाज पहचान समर्थित नहीं है।' : 'Voice recognition not supported.');
+                playSound('alert');
+                return;
+            }
+            if (localStorage.getItem('micGranted') !== 'true') {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(() => {
+                        localStorage.setItem('micGranted', 'true');
+                        bootstrap.Modal.getInstance(document.getElementById('micModal'))?.hide();
+                        startRecognition();
+                    })
+                    .catch(err => {
+                        console.error('Microphone permission error:', err);
+                        const lang = document.getElementById('languageSelect')?.value || 'en';
+                        alert(lang === 'hi' ? 'माइक्रोफोन अनुमति अस्वीकार की गई।' : 'Microphone permission denied.');
+                        playSound('alert');
+                    });
+                new bootstrap.Modal(document.getElementById('micModal')).show();
+                return;
+            }
+            startRecognition();
+        }
+        function startRecognition() {
+            const lang = document.getElementById('languageSelect')?.value || 'en';
+            recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+            recognition.start();
+            alert(lang === 'hi' ? 'आवाज पहचान शुरू।' : 'Voice recognition started.');
+            playSound('click');
+        }
+        function requestMicPermission() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(() => {
+                    localStorage.setItem('micGranted', 'true');
+                    bootstrap.Modal.getInstance(document.getElementById('micModal'))?.hide();
+                    startRecognition();
+                })
+                .catch(err => {
+                    console.error('Microphone permission error:', err);
+                    const lang = document.getElementById('languageSelect')?.value || 'en';
+                    alert(lang === 'hi' ? 'माइक्रोफोन अनुमति अस्वीकार की गई।' : 'Microphone permission denied.');
+                    playSound('alert');
+                });
+        }
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            localStorage.setItem('highContrast', document.body.classList.contains('high-contrast'));
+            playSound('click');
+        }
+        function updateLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            document.querySelectorAll('[data-en]').forEach(elem => {
+                if (elem.tagName === 'SPAN' || elem.tagName === 'P' || elem.tagName === 'LABEL' || elem.tagName === 'H5' || elem.tagName === 'BUTTON') {
+                    elem.textContent = elem.getAttribute(`data-${lang}`);
+                }
+                if (elem.hasAttribute('placeholder')) elem.placeholder = elem.getAttribute(`data-${lang}`) || elem.placeholder;
+            });
+            localStorage.setItem('language', lang);
+            if (recognition) recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+            renderMeds();
+            renderMedHistory();
+            renderCaregivers();
+            renderDoctors();
+            renderProfileSummary();
+            document.getElementById('memoryScore').textContent = lang === 'hi' ? 'स्कोर: 0' : 'Score: 0';
+            document.getElementById('triviaScore').textContent = lang === 'hi' ? 'स्कोर: 0/0' : 'Score: 0/0';
+            playSound('click');
+        }
+        function checkPermissions() {
+            if (localStorage.getItem('micGranted') !== 'true') new bootstrap.Modal(document.getElementById('micModal')).show();
+            if (Notification.permission !== 'granted') Notification.requestPermission();
+        }
+        function playSound(type) {
+            const sound = document.getElementById(`${type}Sound`);
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(err => console.error('Sound play error:', err));
+            }
+        }
+        if (localStorage.getItem('highContrast') === 'true') document.body.classList.add('high-contrast');
+        if (localStorage.getItem('volume')) {
+            const vol = localStorage.getItem('volume');
+            document.getElementById('volumeSlider').value = vol;
+            document.querySelectorAll('audio').forEach(audio => audio.volume = vol / 100);
+        }
+        if (localStorage.getItem('language')) {
+            document.getElementById('languageSelect').value = localStorage.getItem('language');
+            updateLanguage();
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMeds();
+            renderMedHistory();
+            renderCaregivers();
+            renderDoctors();
+            renderProfileSummary();
+        });
+    </script>
+</body>
+</html>

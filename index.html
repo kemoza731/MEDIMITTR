@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MediMittr | Registration & Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #014083 0%, #42a5f5 60%, #b2e3f5 100%);
+            min-height: 100vh;
+            margin: 0;
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: #012B55F0;
+            color: #fff;
+            padding: 24px 0;
+            text-align: center;
+            font-size: 2.4em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 24px #00334e45;
+            position: relative;
+            z-index: 2;
+        }
+
+        .navbar span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar img {
+            width: 80px;
+            margin-right: 60px;
+            animation: heartbeat 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            20% {
+                transform: scale(1.15);
+            }
+
+            40% {
+                transform: scale(0.95);
+            }
+
+            60% {
+                transform: scale(1.10);
+            }
+
+            80% {
+                transform: scale(0.98);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .container {
+            width: 410px;
+            background: #fff;
+            margin: 56px auto 40px auto;
+            border-radius: 18px;
+            box-shadow: 0 6px 32px #013e5b28;
+            padding: 36px 40px 28px 40px;
+            transition: box-shadow 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container:hover {
+            box-shadow: 0 12px 48px #013e5b60;
+        }
+
+        .health-icon {
+            display: block;
+            margin: 0 auto 16px auto;
+            width: 62px;
+            filter: drop-shadow(0 4px 12px #b2e3f5bb);
+        }
+
+        h2 {
+            text-align: center;
+            color: #014083;
+            margin-bottom: 14px;
+            font-size: 2.1em;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .toggle {
+            color: #2296f3;
+            cursor: pointer;
+            text-align: right;
+            margin-bottom: 16px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #014083;
+            font-weight: 600;
+            margin-bottom: 2.5px;
+            margin-left: 1.5px;
+            letter-spacing: 0.3px;
+            font-size: 1.01em;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"],
+        select {
+            padding: 10px;
+            margin: 9px 0 17px 0;
+            border: 1.5px solid #2296f3;
+            border-radius: 7px;
+            font-size: 1em;
+            background: #e7f3fa;
+            transition: border 0.28s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border: 2.2px solid #014083;
+            outline: none;
+            background: #f4fcff;
+        }
+
+        button {
+            background: linear-gradient(90deg, #2296f3 60%, #014083 100%);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.10em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            box-shadow: 0 2px 6px #2296f350;
+            transition: background 0.17s, transform 0.18s;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #014083 65%, #2296f3 100%);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 4px 20px #2296f360;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: #014083;
+            margin-top: 30px;
+            font-size: 1.05em;
+            opacity: 0.77;
+            letter-spacing: 0.3px;
+        }
+
+        .form-row-dob {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 17px;
+        }
+
+        .form-row-2 {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 17px;
+        }
+
+        select {
+            min-width: 65px;
+        }
+
+        /* Wavy SVG background for more flair */
+        .wavy-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            z-index: 0;
+        }
+
+        /* Responsive (basic) */
+        @media (max-width: 500px) {
+            .container {
+                width: 90vw;
+                padding: 20px 9vw;
+            }
+
+            .navbar {
+                font-size: 1.6em;
+            }
+
+            .form-row-2 {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+    <script type="module" src="register.js" defer></script>
+    <script type="module" src="login.js" defer></script>
+</head>
+
+<body>
+    <div class="navbar">
+        <span>
+            <img src="/Media/MediQ1.png" alt="Health Icon" />
+            MediMittr
+        </span>
+    </div>
+    <div class="container">
+        <img src="/Media/MediQ1.png" alt="Healthcare Icon" class="health-icon" />
+        <h2 id="formTitle">User Registration</h2>
+        <div class="toggle" onclick="toggleForms()" id="toggleText">Already a member? Login</div>
+        <form id="registerForm">
+            <!-- <label for="name">Full Name *</label>
+            <input id="name" type="text" placeholder="Full Name" required autocomplete="name"> -->
+
+            <label for="email">Email Address *</label>
+            <input id="email" type="email" placeholder="Email Address" required autocomplete="email">
+             <label for="password">Set Password *</label>
+            <input id="password" type="password" placeholder="Choose Password" required autocomplete="new-password">
+
+            <button id="submit" type="submit">Register</button>
+        </form>
+        <form id="loginForm" class="hide">
+            <label for="loginid">Email or Aadhar Number</label>
+            <input id="loginid" type="text" placeholder="Email or Aadhar Number" required autocomplete="username">
+            <label for="loginpassword">Password</label>
+            <input id="loginpassword" type="password" placeholder="Password" required autocomplete="current-password">
+            <button id="loginsubmit" type="submit">Login</button>
+        </form>
+
+            <!-- <label for="aadhar">Aadhar Card Number *</label>
+            <input id="aadhar" type="text" placeholder="Aadhar Card Number" maxlength="12" pattern="[0-9]{12}" required
+                autocomplete="off">
+
+            <label>Date of Birth *</label>
+            <div class="form-row-dob">
+                <select id="dob-day" required>
+                    <option value="">Day</option>
+                </select>
+                <select id="dob-month" required>
+                    <option value="">Month</option>
+                </select>
+                <select id="dob-year" required>
+                    <option value="">Year</option>
+                </select> -->
+            </div>
+
+            <!-- <div class="form-row-2">
+                <div style="flex:1;">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" required>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer Not To Say">Prefer not to say</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label for="bloodgroup">Blood Group *</label>
+                    <select id="bloodgroup" required>
+                        <option value="">Select</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="contact">Contact Number *</label>
+            <input id="contact" type="text" placeholder="Mobile Number" maxlength="10" pattern="[0-9]{10}" required
+                autocomplete="tel">
+
+            <label for="address">Address *</label>
+            <input id="address" type="text" placeholder="Residential Address" required autocomplete="street-address">
+        -->
+           
+        
+    </div>
+    <div class="footer">
+        <span style="color:#2296f3;">&copy; 2025 MediQ</span>. Caring with innovation &mdash; your health, our promise.
+    </div>
+    <svg class="wavy-bg" viewBox="0 0 1440 320" width="100%" height="140">
+        <path fill="#2296f3" fill-opacity="0.21"
+            d="M0,96L80,128C160,160,320,224,480,224C640,224,800,160,960,154.7C1120,149,1280,203,1360,229.3L1440,256L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z">
+        </path>
+    </svg>
+     <script>
+        function toggleForms() {
+            let regForm = document.getElementById('registerForm');
+            let logForm = document.getElementById('loginForm');
+            let title = document.getElementById('formTitle');
+            let toggleText = document.getElementById('toggleText');
+            if (regForm.classList.contains('hide')) {
+                regForm.classList.remove('hide');
+                logForm.classList.add('hide');
+                title.textContent = "User Registration";
+                toggleText.textContent = "Already a member? Login";
+            } else {
+                regForm.classList.add('hide');
+                logForm.classList.remove('hide');
+                title.textContent = "Member Login";
+                toggleText.textContent = "New to MediQ? Register";
+            }
+        }
+        // // DOB dropdowns (user-friendly, leap-year proof)
+        // let daySel = document.getElementById('dob-day');
+        // let monthSel = document.getElementById('dob-month');
+        // let yearSel = document.getElementById('dob-year');
+        // // Populate days
+        // for (let i = 1; i <= 31; i++) {
+        //     let opt = document.createElement('option');
+        //     opt.value = i;
+        //     opt.text = i;
+        //     daySel.appendChild(opt);
+        // }
+        // // Populate months
+        // let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        //     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        // for (let i = 0; i < 12; i++) {
+        //     let opt = document.createElement('option');
+        //     opt.value = i + 1;
+        //     opt.text = months[i];
+        //     monthSel.appendChild(opt);
+        // }
+        // // Populate years (current year - 120 to current year - 1)
+        // let now = new Date().getFullYear();
+        // for (let y = now - 1; y >= now - 120; y--) {
+        //     let opt = document.createElement('option');
+        //     opt.value = y;
+        //     opt.text = y;
+        //     yearSel.appendChild(opt);
+        // }
+        // // Smart days update for selected month/year
+        // function updateDayOptions() {
+        //     let selectedMonth = parseInt(monthSel.value);
+        //     let selectedYear = parseInt(yearSel.value);
+        //     let daysInMonth = 31;
+        //     if (selectedMonth === 2) {
+        //         daysInMonth = (selectedYear % 4 === 0 && (selectedYear % 100 !== 0 || selectedYear % 400 === 0)) ? 29 : 28;
+        //     } else if ([4, 6, 9, 11].includes(selectedMonth)) {
+        //         daysInMonth = 30;
+        //     }
+        //     for (let i = 1; i <= 31; i++) {
+        //         daySel.options[i].style.display = i <= daysInMonth ? "" : "none";
+        //     }
+        //     if (parseInt(daySel.value) > daysInMonth) {
+        //         daySel.value = "";
+        //     }
+        // }
+        // monthSel.addEventListener('change', updateDayOptions);
+        // yearSel.addEventListener('change', updateDayOptions); 
+    </script>
+</body>
+
+</html>
